@@ -97,51 +97,6 @@ $budget_spent_percent2 = (($row['budget_12m_80_million'] - ($row['sum_budget_tot
 }
 
 
-$sql_to_sparkline = "
-WITH LatestYearMonth AS ( SELECT MAX( `year` ) AS latest_year FROM total_result WHERE `year` = ( SELECT MAX( `year` ) FROM total_result ) ) SELECT
-`year`,
-`month`,
-sum_budget_12m,
-sum_budget_total,
-sum_criteria_expenses,
-( sum_budget_12m * 0.80 - sum_criteria_expenses ) / 1000000 AS balance_budget_12m,
-( sum_criteria_expenses / ( sum_budget_12m * 0.80 ) ) * 100 AS percent_expense_vs_budget_12m,
-( sum_budget_12m * 0.80 ) / 1000000 AS budget_12m_80_million,
-( sum_criteria_expenses ) / 1000000 AS criteria_expenses_million,
-( sum_budget_total - sum_criteria_expenses ) / 1000000 AS balance_budget_total,
-sum_budget_total / 1000000 AS budget_total_million,
-( sum_criteria_expenses / sum_budget_total ) * 100 AS percent_expense_vs_budget_total 
-FROM
-	total_result 
-WHERE
-	( `year` ) IN ( SELECT latest_year FROM LatestYearMonth ) 
-ORDER BY
-	`month` ASC
-
-";
-$result_to_sparkline = $conn->query($sql_to_sparkline);
-
-$budget_12m_80_million_sparkline = [];
-$percent_expense_vs_budget_12m_sparkline = [];
-$budget_total_million_sparkline = [];
-$criteria_expenses_million_sparkline = [];
-$balance_budget_total_sparkline = [];
-$percent_expense_vs_budget_total_sparkline = [];
-$budget_spent_percent_sparkline = [];
-$budget_spent_percent2_sparkline = [];
-
-while ($row = $result_to_sparkline->fetch_assoc()) {
-    $budget_12m_80_million_sparkline[] = round($row['budget_12m_80_million'], 2);
-    $percent_expense_vs_budget_12m_sparkline[] = round($row['percent_expense_vs_budget_12m'], 2);
-    $budget_total_million_sparkline[] = round($row['budget_total_million'], 2);
-    $criteria_expenses_million_sparkline[] = round($row['criteria_expenses_million'], 2);
-    $balance_budget_total_sparkline[] = round($row['balance_budget_total'], 2);
-    $percent_expense_vs_budget_total_sparkline[] = round($row['percent_expense_vs_budget_total'], 2);
-    $budget_spent_percent_sparkline[] = round((($row['sum_budget_12m'] / 1000000) - $row['budget_12m_80_million']) / $row['budget_12m_80_million'] * 100, 2);
-    $budget_spent_percent2_sparkline[] = round((($row['budget_12m_80_million'] - ($row['sum_budget_total'] / 1000000)) / ($row['sum_budget_total'] / 1000000)) * 100, 2);
-}
-
-
 
 $sql_table = "
 WITH SpecifiedAcc AS (
@@ -1563,11 +1518,6 @@ $result_graph2 = $conn->query($sql_graph2);
 		color: #4c967d;
 		font-weight: bold;
 	}
-
-	canvas {
-		display: block;
-		margin: 20px auto;
-	}
 </style>
 
 <body class="page-header-fixed sidemenu-closed-hidelogo page-content-white page-md page-full-width header-white white-sidebar-color logo-indigo">
@@ -1631,17 +1581,11 @@ $result_graph2 = $conn->query($sql_graph2);
 																	<div class="col mt-0">
 																		<h4 class="info-box-title">งบประมาณปี <?php echo convertToThaiYear($latestYear); ?> (80%)</h4>
 																	</div>
-																	<h3 class="mt-1 mb-3 info-box-title col-green"><?php echo number_format($budget_12m_80_million,2); ?></h3>
-																	<div class="progress">
-																		<div class="progress-bar l-bg-purple" style="width: 100%"></div>
-																	</div>
-																</div>
-																<div class="col-auto">
-																<div><canvas id="sparklineChart1" style="display: inline-block; width: 100px; height: 70px; vertical-align: top;"></canvas>
-																	</div>
-																	
+																	<h2 class="mt-1 mb-3 info-box-title col-green"><?php echo number_format($budget_12m_80_million,2); ?></h2>
 
 																</div>
+
+
 															</div>
 														</div>
 													</div>
@@ -1654,15 +1598,10 @@ $result_graph2 = $conn->query($sql_graph2);
 																	<div class="col mt-0">
 																		<h4 class="info-box-title">เบิกจ่ายสุทธิ</h4>
 																	</div>
-																	<h3 class="mt-1 mb-3 info-box-title col-green"><?php echo number_format($criteria_expenses_million,2); ?></h3>
-																	<div class="progress">
-																		<div class="progress-bar l-bg-red" style="width: 45%"></div>
-																	</div>
+																	<h2 class="mt-1 mb-3 info-box-title col-green"><?php echo number_format($criteria_expenses_million,2); ?></h2>
+
 																</div>
-																<div class="col-auto">
-																	<div id="sparkline6"><canvas style="display: inline-block; width: 167px; height: 70px; vertical-align: top;"></canvas>
-																	</div>
-																</div>
+
 															</div>
 														</div>
 													</div>
@@ -1675,15 +1614,10 @@ $result_graph2 = $conn->query($sql_graph2);
 																	<div class="col mt-0">
 																		<h4 class="info-box-title">คงเหลือจากงบประมาณ</h4>
 																	</div>
-																	<h3 class="mt-1 mb-3 info-box-title col-green"><?php echo number_format($balance_budget_12m,2); ?></h3>
-																	<div class="progress">
-																		<div class="progress-bar l-bg-green" style="width: 45%"></div>
-																	</div>
+																	<h2 class="mt-1 mb-3 info-box-title col-green">
+																		<?php echo number_format($balance_budget_12m,2); ?></h2>
 																</div>
-																<div class="col-auto">
-																	<div id="sparkline9"><canvas style="display: inline-block; width: 167px; height: 70px; vertical-align: top;"></canvas>
-																	</div>
-																</div>
+
 															</div>
 														</div>
 													</div>
@@ -1696,15 +1630,10 @@ $result_graph2 = $conn->query($sql_graph2);
 																	<div class="col mt-0">
 																		<h4 class="info-box-title">% เบิกจ่ายกับงบประมาณ</h4>
 																	</div>
-																	<h3 class="mt-1 mb-3 info-box-title col-green"><?php echo number_format($percent_expense_vs_budget_12m,2); ?></h3>
-																	<div class="progress">
-																		<div class="progress-bar l-bg-orange" style="width: 45%"></div>
-																	</div>
+																	<h2 class="mt-1 mb-3 info-box-title col-green"><?php echo number_format($percent_expense_vs_budget_12m,2); ?></h2>
+
 																</div>
-																<div class="col-auto">
-																	<div id="sparkline16" class="text-center"><canvas style="display: inline-block; width: 100px; height: 50px; vertical-align: top;"></canvas>
-																	</div>
-																</div>
+
 															</div>
 														</div>
 													</div>
@@ -1721,15 +1650,10 @@ $result_graph2 = $conn->query($sql_graph2);
 																	<div class="col mt-0">
 																		<h4 class="info-box-title">งบประมาณสะสม มค-<?php echo convertToThaiMonth($latestMonth); ?> ปี <?php echo convertToThaiYear($latestYear); ?></h4>
 																	</div>
-																	<h3 class="mt-1 mb-3 info-box-title col-green"><?php echo number_format($budget_total_million,2); ?></h3>
-																	<div class="progress">
-																		<div class="progress-bar l-bg-purple" style="width: 100%"></div>
-																	</div>
+																	<h2 class="mt-1 mb-3 info-box-title col-green"><?php echo number_format($budget_total_million,2); ?></h2>
+
 																</div>
-																<div class="col-auto">
-																	<div id="sparkline1"><canvas style="display: inline-block; width: 100px; height: 70px; vertical-align: top;"></canvas>
-																	</div>
-																</div>
+
 															</div>
 														</div>
 													</div>
@@ -1742,15 +1666,10 @@ $result_graph2 = $conn->query($sql_graph2);
 																	<div class="col mt-0">
 																		<h4 class="info-box-title">เบิกจ่ายสุทธิ</h4>
 																	</div>
-																	<h3 class="mt-1 mb-3 info-box-title col-green"><?php echo number_format($criteria_expenses_million,2); ?></h3>
-																	<div class="progress">
-																		<div class="progress-bar l-bg-red" style="width: 45%"></div>
-																	</div>
+																	<h2 class="mt-1 mb-3 info-box-title col-green"><?php echo number_format($criteria_expenses_million,2); ?></h2>
+
 																</div>
-																<div class="col-auto">
-																	<div id="sparkline7"><canvas style="display: inline-block; width: 367px; height: 70px; vertical-align: top;"></canvas>
-																	</div>
-																</div>
+
 															</div>
 														</div>
 													</div>
@@ -1763,15 +1682,10 @@ $result_graph2 = $conn->query($sql_graph2);
 																	<div class="col mt-0">
 																		<h4 class="info-box-title">คงเหลือจากงบประมาณ</h4>
 																	</div>
-																	<h3 class="mt-1 mb-3 info-box-title col-green"><?php echo number_format($balance_budget_total,2); ?></h3>
-																	<div class="progress">
-																		<div class="progress-bar l-bg-green" style="width: 45%"></div>
-																	</div>
+																	<h2 class="mt-1 mb-3 info-box-title col-green"><?php echo number_format($balance_budget_total,2); ?></h2>
+
 																</div>
-																<div class="col-auto">
-																	<div id="sparkline2"><canvas style="display: inline-block; width: 167px; height: 70px; vertical-align: top;"></canvas>
-																	</div>
-																</div>
+
 															</div>
 														</div>
 													</div>
@@ -1784,15 +1698,10 @@ $result_graph2 = $conn->query($sql_graph2);
 																	<div class="col mt-0">
 																		<h4 class="info-box-title">% เบิกจ่ายกับงบประมาณ</h4>
 																	</div>
-																	<h3 class="mt-1 mb-3 info-box-title col-green"><?php echo number_format($percent_expense_vs_budget_total,2); ?></h3>
-																	<div class="progress">
-																		<div class="progress-bar l-bg-orange" style="width: 45%"></div>
-																	</div>
+																	<h2 class="mt-1 mb-3 info-box-title col-green"><?php echo number_format($percent_expense_vs_budget_total,2); ?></h2>
+
 																</div>
-																<div class="col-auto">
-																	<div id="sparkline3" class="text-center"><canvas style="display: inline-block; width: 100px; height: 50px; vertical-align: top;"></canvas>
-																	</div>
-																</div>
+
 															</div>
 														</div>
 													</div>
@@ -2444,71 +2353,8 @@ while ($row = $result_table_XS_77->fetch_assoc())
 			window.history.back();
 		});
 	</script>
-	<!-- Start SparklineChart -->
-	<script>
-		document.addEventListener("DOMContentLoaded", function() {
-			// Convert PHP arrays to JavaScript arrays
-			var budget_12m_80_million_sparkline = <?php echo json_encode($budget_12m_80_million_sparkline); ?>;
-			var budget_spent_percent2_sparkline = <?php echo json_encode($budget_spent_percent2_sparkline); ?>;
+	
 
-			// Ensure data is valid
-			if (budget_12m_80_million_sparkline.length > 0 && budget_spent_percent2_sparkline.length > 0) {
-				// Line chart for Budget 12M 80 Million
-				var ctx1 = document.getElementById('sparklineChart1').getContext('2d');
-            var sparklineChart1 = new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: Array.from({length: budget_12m_80_million_sparkline.length}, (_, i) => i + 1),
-                    datasets: [{
-                        data: budget_12m_80_million_sparkline,
-                        borderColor: '#3e95cd',
-                        fill: false,
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        x: {
-                            display: false
-                        },
-                        y: {
-                            display: false
-                        }
-                    }
-                }
-            });
-
-				// Doughnut chart for Budget Spent %
-				var ctx2 = document.getElementById('sparklineChart2').getContext('2d');
-				var sparklineChart2 = new Chart(ctx2, {
-					type: 'doughnut',
-					data: {
-						labels: ['Budget Spent %', 'Remaining %'],
-						datasets: [{
-							data: [budget_spent_percent2_sparkline.reduce((a, b) => a + b, 0) / budget_spent_percent2_sparkline.length, 100 - (budget_spent_percent2_sparkline.reduce((a, b) => a + b, 0) / budget_spent_percent2_sparkline.length)],
-							backgroundColor: ['#3e95cd', '#8e5ea2']
-						}]
-					},
-					options: {
-						responsive: true,
-						plugins: {
-							legend: {
-								display: false
-							}
-						}
-					}
-				});
-			} else {
-				console.error("Invalid data for sparklines");
-			}
-		});
-	</script>
 	<!-- Start ApexChart -->
 	<script>
 		var jsonData1 = <?php echo $jsonData1; ?>;
@@ -2519,7 +2365,7 @@ while ($row = $result_table_XS_77->fetch_assoc())
 				type: 'column',
 				data: jsonData1.map(item => item.budget_12m_80_million)
 			}, {
-				name: 'เบิกจ่าย',
+				name: 'เบิกจ่ายสุทธิ',
 				type: 'column',
 				data: jsonData1.map(item => item.criteria_expenses_million)
 			}, {

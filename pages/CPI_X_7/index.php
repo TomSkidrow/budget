@@ -527,19 +527,19 @@ WHERE
 
         var options1 = {
             series: [{
-                name: 'ค่าใช้จ่าย ปี66',
+                name: 'เบิกจ่ายสุทธิ ปี66',
                 type: 'column',
                 data: jsonData1.map(item => item.total_criteria_expenses_2023)
             }, {
-                name: 'ค่าใช้จ่าย ปี67',
+                name: 'เบิกจ่ายสุทธิ ปี67',
                 type: 'column',
                 data: jsonData1.map(item => item.total_criteria_expenses_2024)
             }, {
-                name: 'งบสะสมปี67',
+                name: 'งบสะสม ปี67',
                 type: 'column',
                 data: jsonData1.map(item => item.total_budget_total_2024)
             }, {
-                name: 'งบประมาณปี67',
+                name: 'งบประมาณ ปี67',
                 type: 'column',
                 data: jsonData1.map(item => item.total_budget_12m_2024)
             }],
@@ -631,6 +631,8 @@ WHERE
                 labels: {
                     style: {
                         fontFamily: 'Prompt, sans-serif',
+						fontSize: '14px', // Increase the size of the x-axis labels
+                fontWeight: 'bold'
                     }
                 },
                 tickPlacement: 'between', // Ensure ticks are between the categories
@@ -674,7 +676,7 @@ WHERE
     document.addEventListener("DOMContentLoaded", function() {
         if (typeof jsonData2 !== 'undefined' && jsonData2.length > 0) {
             // Prepare data for 2023 and 2024
-            var months = ['มค', 'กพ', 'มีค', 'เมย', 'พค', 'มิย', 'กค', 'สค', 'กย', 'ตค', 'พย', 'ธค'];
+            var months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
             var data2023 = new Array(12).fill(0);
             var data2024 = new Array(12).fill(0);
 
@@ -688,10 +690,10 @@ WHERE
 
             var options = {
                 series: [{
-                    name: "ค่าใช้จ่าย ปี 2566",
+                    name: "เบิกจ่ายสุทธิ ปี 2566",
                     data: data2023
                 }, {
-                    name: "ค่าใช้จ่าย ปี 2567",
+                    name: "เบิกจ่ายสุทธิ ปี 2567",
                     data: data2024
                 }],
                 chart: {
@@ -709,7 +711,7 @@ WHERE
                     curve: 'smooth'
                 },
                     title: {
-        text: 'เปรียบเทียบค่าใช้จ่ายตามเกณฑ์ (ปี 2566 vs 2567)',
+        text: 'เปรียบเทียบ เบิกจ่ายสุทธิ (ปี 2566 vs 2567)',
         align: 'left',
         style: {
             fontFamily: 'Prompt, sans-serif'
@@ -764,7 +766,7 @@ WHERE
     document.addEventListener("DOMContentLoaded", function() {
         if (typeof jsonData2 !== 'undefined' && jsonData2.length > 0) {
             // Prepare data for 2024
-            var months = ['มค', 'กพ', 'มีค', 'เมย', 'พค', 'มิย', 'กค', 'สค', 'กย', 'ตค', 'พย', 'ธค'];
+            var months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
             var data2024_criteria_expenses = new Array(12).fill(0);
             var data2024_budget_total = new Array(12).fill(0);
 
@@ -780,7 +782,7 @@ WHERE
                     name: "งบประมาณสะสม ปี 2567",
                     data: data2024_budget_total
                 }, {
-                    name: "ค่าใช้จ่าย ปี 2567",
+                    name: "เบิกจ่ายสุทธิ ปี 2567",
                     data: data2024_criteria_expenses
                 }],
                 chart: {
@@ -798,7 +800,7 @@ WHERE
                     curve: 'smooth'
                 },
                 title: {
-                    text: 'เปรียบเทียบค่าใช้จ่ายตามเกณฑ์กับงบประมาณสะสม (ปี 2567)',
+                    text: 'เปรียบเทียบ เบิกจ่ายสุทธิ กับ งบประมาณสะสม (ปี 2567)',
                     align: 'left',
                     style: {
                         fontFamily: 'Prompt, sans-serif'
@@ -854,7 +856,7 @@ WHERE
     document.addEventListener("DOMContentLoaded", function() {
         if (typeof jsonData2 !== 'undefined' && jsonData2.length > 0) {
             // Prepare data for 2024
-            var months = ['มค', 'กพ', 'มีค', 'เมย', 'พค', 'มิย', 'กค', 'สค', 'กย', 'ตค', 'พย', 'ธค'];
+            var months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
             var data2024_criteria_expenses = new Array(12).fill(0);
             var data2024_budget_total = new Array(12).fill(0);
             var data2024_budget_12m = new Array(12).fill(0);
@@ -869,13 +871,13 @@ WHERE
 
             var options = {
                 series: [{
-                    name: "งบประมาณปี 2567",
+                    name: "งบประมาณ ปี 2567",
                     data: data2024_budget_12m
                 }, {
-                    name: "ค่าใช้จ่าย ปี 2567",
+                    name: "เบิกจ่ายสุทธิ ปี 2567",
                     data: data2024_criteria_expenses
                 } , {
-                    name: "งบสะสมปี 2567",
+                    name: "งบสะสม ปี 2567",
                     data: data2024_budget_total
                 }],
                 chart: {
@@ -894,7 +896,7 @@ WHERE
                     dashArray: [8, 0, 5]
                 },
                 title: {
-                    text: 'เปรียบเทียบค่าใช้จ่ายตามเกณฑ์กับ งบสะสมและงบประมาณปี 2567',
+                    text: 'เปรียบเทียบ เบิกจ่ายสุทธิ กับ งบสะสมฯ,งบประมาณปี 2567',
                     align: 'left',
                     style: {
                         fontFamily: 'Prompt, sans-serif'

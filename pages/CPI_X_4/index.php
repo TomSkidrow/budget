@@ -121,7 +121,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 								<div class="page-title"></div>
 							</div>
 							<ol class="breadcrumb page-breadcrumb pull-right">
-								<li><i class="fa fa-home"></i>&nbsp;<a class="parent-item" href="../benchmarking1/">Home</a>&nbsp;<i class="fa fa-angle-right"></i>
+								<li><i class="fa fa-home"></i>&nbsp;<a class="parent-item" href="../dashboard/">Home</a>&nbsp;<i class="fa fa-angle-right"></i>
 								</li>
 								<li class="active"><a href="#" id="goBack">กลับไปหน้าที่แล้ว</a></li>
 							</ol>
@@ -257,7 +257,7 @@ FROM
 WHERE
 	b.profit_code IN ( '$whereClause' ) 
 ORDER BY
-	percentage_expenses_2024 DESC
+	percentage_change ASC
 ";
             //echo "<pre>$sql_search</pre>"; // 
             
@@ -389,19 +389,19 @@ ORDER BY
 
 		var options1 = {
 			series: [{
-				name: 'ค่าใช้จ่าย ปี66',
+				name: 'เบิกจ่ายสุทธิ ปี66',
 				type: 'column',
 				data: jsonData1.map(item => item.total_criteria_expenses_2023)
 			}, {
-				name: 'ค่าใช้จ่าย ปี67',
+				name: 'เบิกจ่ายสุทธิ ปี67',
 				type: 'column',
 				data: jsonData1.map(item => item.total_criteria_expenses_2024)
 			}, {
-				name: 'งบสะสมปี67',
+				name: 'งบสะสม ปี67',
 				type: 'column',
 				data: jsonData1.map(item => item.total_budget_total_2024)
 			}, {
-				name: 'งบประมาณปี67',
+				name: 'งบประมาณ ปี67',
 				type: 'line',
 				data: jsonData1.map(item => item.total_budget_12m_2024)
 			}],
@@ -479,12 +479,12 @@ ORDER BY
 				labels: {
 					formatter: function(val) {
 						return (val / 1000000).toLocaleString('en-US', {
-							minimumFractionDigits: 1,
-							maximumFractionDigits: 1
+							minimumFractionDigits: 0,
+							maximumFractionDigits: 0
 						}) + ' ล้านบาท';
 					},
 					style: {
-						fontSize: '13px'
+						fontSize: '14px'
 					}
 				}
 			},
@@ -493,6 +493,8 @@ ORDER BY
 				labels: {
 					style: {
 						fontFamily: 'Prompt, sans-serif',
+						fontSize: '14px', // Increase the size of the x-axis labels
+                fontWeight: 'bold'
 					}
 				},
 				tickPlacement: 'between',

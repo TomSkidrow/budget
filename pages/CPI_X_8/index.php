@@ -142,7 +142,7 @@ $new_json_data = json_encode($data);
                                 <div class="page-title"></div>
                             </div>
                             <ol class="breadcrumb page-breadcrumb pull-right">
-                                <li><i class="fa fa-home"></i>&nbsp;<a class="parent-item" href="../dashboard">Home</a>&nbsp;<i class="fa fa-angle-right"></i>
+                                <li><i class="fa fa-home"></i>&nbsp;<a class="parent-item" href="../dashboard/">Home</a>&nbsp;<i class="fa fa-angle-right"></i>
                                 </li>
                                 <li class="active"><a href="#" id="goBack">กลับไปหน้าที่แล้ว</a></li>
                             </ol>
@@ -266,12 +266,12 @@ $new_json_data = json_encode($data);
                                                 <tr>
                                                     <th></th>
                                                     <th> กลุ่มบัญชี </th>
-                                                    <th> งบประมาณ 12 เดือน </th>
-                                                    <th> งบสะสมปี 67 </th>
-                                                    <th> ค่าใช้จ่ายปี 67 </th>
-                                                    <th> คงเหลือ </th>
-                                                    <th> % การใช้ </th>
-                                                    <th> Progress </th>
+                                                <th style="text-align: center;">งบประมาณทั้งหมด<br>(1)</th>
+                                                <th style="text-align: center;">งบประมาณสะสม<br>(2)</th>
+                                                <th style="text-align: center;">เบิกจ่ายสุทธิ<br>(3)</th>
+                                                <th style="text-align: center;">คงเหลือทั้งหมด<br>(1-3)</th>
+                                                <th style="text-align: center;"> % การใช้จาก<br>งบประมาณทั้งหมด</th>
+                                                <th style="text-align: center;">ปริมาตรการใช้จาก<br>งบประมาณทั้งหมด</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -283,13 +283,13 @@ $new_json_data = json_encode($data);
                                                 <tr class="odd gradeX">
                                                     <td><?php echo $num; ?></td>
                                                     <td><a href="grouping.php?id=<?php echo $row['group']; ?>"><?php echo $row['group_name']; ?></a></td>
-                                                    <td><?php echo number_format($row['sum_budget_12m'],2); ?></td>
-                                                    <td><?php echo number_format($row['sum_budget_total'],2); ?></td>
+                                                    <td style="text-align: right;"><?php echo number_format($row['sum_budget_12m'],2); ?></td>
+                                                    <td style="text-align: right;"><?php echo number_format($row['sum_budget_total'],2); ?></td>
                                                     <!--                                                <td><?php //echo number_format($row['sum_pay_savings'],2); ?></td>-->
                                                     <!--                                                <td><?php //echo number_format($row['sum_except'],2); ?></td>-->
-                                                    <td><?php echo number_format($row['sum_criteria_expenses'],2); ?></td>
-                                                    <td><?php echo number_format($row['balance'],2); ?></td>
-                                                    <td><?php echo abs(number_format($row['percent_budget'],2)); ?></td>
+                                                    <td style="text-align: right;"><?php echo number_format($row['sum_criteria_expenses'],2); ?></td>
+                                                    <td style="text-align: right;"><?php echo number_format($row['balance'],2); ?></td>
+                                                    <td style="text-align: right;"><?php echo abs(number_format($row['percent_budget'],2)); ?></td>
                                                     <td>
                                                         <?php
 

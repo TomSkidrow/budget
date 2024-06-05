@@ -1,6 +1,51 @@
 <?php
 require_once('../includes/connect.php');
 
+$latestYearMonthQuery = "
+SELECT
+	MAX( `year` ) AS latest_year,
+	MAX( `month` ) AS latest_month 
+FROM
+	total_result 
+WHERE
+	`year` = ( SELECT MAX( `year` ) FROM total_result )
+";
+
+$previousYearMonthQuery = "
+SELECT
+	( SELECT MAX( `year` ) - 1 FROM total_result ) AS prev_year,
+	( SELECT latest_month FROM ( $latestYearMonthQuery ) AS LatestYearMonth ) AS prev_month
+";
+
+try {
+    
+    $stmtLatest = $conn->query($latestYearMonthQuery);
+    $stmtPrevious = $conn->query($previousYearMonthQuery);
+
+
+    $lastRecord = $stmtLatest->fetch_assoc();
+
+ 
+    $firstRecord = $stmtPrevious->fetch_assoc();
+
+   
+    $mergedRecords = array_merge($lastRecord, $firstRecord);
+
+   
+    if (!empty($mergedRecords)) {
+        
+        $latestYear = $mergedRecords['latest_year'];
+        $latestMonth = $mergedRecords['latest_month'];
+        $prevYear = $mergedRecords['prev_year'];
+        $prevMonth = $mergedRecords['prev_month'];
+
+    } else {
+        echo "No records found.";
+    }
+} catch (Exception $e) {
+    echo 'Query failed: ' . $e->getMessage();
+}
+
 $sql1 = "
 SELECT
 	SUBSTR( a.node_description, 6, 30 ) AS node_description,
@@ -53,9 +98,9 @@ $jsonData1 = json_encode( $data );
 $sql1_2 = "
 SELECT
 	SUBSTR( a.node_description, 6, 30 ) AS node_description,
-	SUM( a.total_criteria_expenses ) AS total_criteria_expenses_2023,
-	SUM( b.total_budget_total ) AS total_budget_total_2024,
-	SUM( b.total_criteria_expenses ) AS total_criteria_expenses_2024,
+	SUM( a.total_criteria_expenses/1000000 ) AS total_criteria_expenses_2023,
+	SUM( b.total_budget_total/1000000 ) AS total_budget_total_2024,
+	SUM( b.total_criteria_expenses/1000000 ) AS total_criteria_expenses_2024,
 CASE
 		
 		WHEN SUM( b.total_budget_total ) = 0 THEN
@@ -146,9 +191,9 @@ $jsonData2 = json_encode( $data );
 $sql2_2 = "
 SELECT
 	a.pea_sname AS pea,
-	a.total_criteria_expenses AS total_criteria_expenses_2023,
-	b.total_budget_total AS total_budget_total_2024,
-	b.total_criteria_expenses AS total_criteria_expenses_2024,
+	a.total_criteria_expenses/1000000 AS total_criteria_expenses_2023,
+	b.total_budget_total/10000000 AS total_budget_total_2024,
+	b.total_criteria_expenses/10000000 AS total_criteria_expenses_2024,
 CASE
 		
 		WHEN b.total_budget_total = 0 THEN
@@ -224,7 +269,7 @@ WHERE
 GROUP BY
 	a.profit_code 
 ORDER BY
-	percentage_expenses_2024 DESC
+	percentage_change ASC
 
 ";
 
@@ -242,46 +287,46 @@ if ( $result3->num_rows > 0 ) {
 $jsonData3 = json_encode( $data );
 
 
-$sql3_2 = "
-SELECT
-	a.pea_sname AS pea,
-	a.total_criteria_expenses AS total_criteria_expenses_2023,
-	b.total_budget_total AS total_budget_total_2024,
-	b.total_criteria_expenses AS total_criteria_expenses_2024,
-CASE
-		
-		WHEN b.total_budget_total = 0 THEN
-		0 ELSE b.total_criteria_expenses / b.total_budget_total * 100 
-	END AS percentage_expenses_2024,
-	( ( b.total_criteria_expenses - a.total_criteria_expenses ) / a.total_criteria_expenses ) * 100 AS percentage_change 
-FROM
-	aggregated_data_2023 a
-	JOIN aggregated_data_2024 b ON a.profit_code = b.profit_code 
-WHERE
-	a.profit_code IN (
-		'E3011011',
-		'E3021011',
-		'E3031011',
-		'E3041011',
-		'E3051011',
-		'E3061011',
-		'E3071011',
-		'E3081011',
-		'E3091012',
-		'E3101012',
-		'E3111012',
-		'E3121012',
-		'E3131010',
-		'E3141010',
-		'E3151010' 
-	) 
-GROUP BY
-	a.profit_code 
-ORDER BY
-	percentage_expenses_2024 DESC
-";
-
-$result3_2 = $conn->query( $sql3_2 );
+//$sql3_2 = "
+//SELECT
+//	a.pea_sname AS pea,
+//	a.total_criteria_expenses AS total_criteria_expenses_2023,
+//	b.total_budget_total AS total_budget_total_2024,
+//	b.total_criteria_expenses AS total_criteria_expenses_2024,
+//CASE
+//		
+//		WHEN b.total_budget_total = 0 THEN
+//		0 ELSE b.total_criteria_expenses / b.total_budget_total * 100 
+//	END AS percentage_expenses_2024,
+//	( ( b.total_criteria_expenses - a.total_criteria_expenses ) / a.total_criteria_expenses ) * 100 AS percentage_change 
+//FROM
+//	aggregated_data_2023 a
+//	JOIN aggregated_data_2024 b ON a.profit_code = b.profit_code 
+//WHERE
+//	a.profit_code IN (
+//		'E3011011',
+//		'E3021011',
+//		'E3031011',
+//		'E3041011',
+//		'E3051011',
+//		'E3061011',
+//		'E3071011',
+//		'E3081011',
+//		'E3091012',
+//		'E3101012',
+//		'E3111012',
+//		'E3121012',
+//		'E3131010',
+//		'E3141010',
+//		'E3151010' 
+//	) 
+//GROUP BY
+//	a.profit_code 
+//ORDER BY
+//	percentage_change ASC
+//";
+//
+//$result3_2 = $conn->query( $sql3_2 );
 
 $sql_sum = "
 SELECT
@@ -391,6 +436,36 @@ if ( $result_sum2->num_rows > 0 ) {
 
 $jsonData5 = json_encode( $data );
 ?>
+<?php
+    function convertToThaiMonth($monthNumber)
+    {
+        $thaiMonths = [1 => 'ม.ค.', 2 => 'ก.พ.', 3 => 'มี.ค.', 4 => 'เม.ย.', 5 => 'พ.ค.', 6 => 'มิ.ย.', 7 => 'ก.ค.', 8 => 'ส.ค.', 9 => 'ก.ย.', 10 => 'ต.ค.', 11 => 'พ.ย.', 12 => 'ธ.ค.'];
+
+        return isset($thaiMonths[$monthNumber]) ? $thaiMonths[$monthNumber] : 'ข้อมูลเดือนไม่ถูกต้อง';
+    }
+    function convertToThaiYear($ThaiYear) {
+        return $ThaiYear + 543;
+    }
+//    function formatValue($value) {
+//        if ($value < 0) {
+//            $formattedValue = '(' . number_format(abs($value), 2) . ')';
+//            return '<span class="negative">' . $formattedValue . '</span>';
+//        } else {
+//            return number_format($value, 2);
+//        }
+//    }
+    function formatValue($value) {
+        if ($value < 0) {
+            $formattedValue = number_format($value, 2);
+            return '<span class="negative">' . $formattedValue . '</span>';
+        } else if ($value > 0) {
+            return '<span class="green">' . number_format($value, 2) . '</span>';
+        } else {
+            return number_format($value, 2);
+        }
+    }
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <!-- BEGIN HEAD -->
@@ -487,6 +562,106 @@ $jsonData5 = json_encode( $data );
 	#chart5 .apexcharts-text {
 		font-family: 'Prompt', sans-serif !important;
 	}
+
+	/* Add border style for the table */
+	.mdl-tabs__panel#tab4-panel table {
+		border-collapse: collapse;
+		width: 100%;
+	}
+
+	/* Add border style for table header cells */
+	.mdl-tabs__panel#tab4-panel th {
+		border: 1px solid #ddd;
+		padding: 8px;
+		text-align: left;
+	}
+
+	/* Add border style for table body cells */
+	.mdl-tabs__panel#tab4-panel td {
+		border: 1px solid #ddd;
+		padding: 8px;
+		text-align: left;
+	}
+
+	/* Remove border from first table row */
+	.mdl-tabs__panel#tab4-panel tr:first-child {
+		border-top: none;
+	}
+
+	/* Remove border from last table row */
+	.mdl-tabs__panel#tab4-panel tr:last-child {
+		border-bottom: none;
+	}
+
+	.mdl-tabs__panel#tab5-panel table {
+		border-collapse: collapse;
+		width: 100%;
+	}
+
+	/* Add border style for table header cells */
+	.mdl-tabs__panel#tab5-panel th {
+		border: 1px solid #ddd;
+		padding: 8px;
+		text-align: left;
+	}
+
+	/* Add border style for table body cells */
+	.mdl-tabs__panel#tab5-panel td {
+		border: 1px solid #ddd;
+		padding: 8px;
+		text-align: left;
+	}
+
+	/* Remove border from first table row */
+	.mdl-tabs__panel#tab5-panel tr:first-child {
+		border-top: none;
+	}
+
+	/* Remove border from last table row */
+	.mdl-tabs__panel#tab5-panel tr:last-child {
+		border-bottom: none;
+	}
+
+	/* Add border style for the table */
+	.mdl-tabs__panel#tab6-panel table {
+		border-collapse: collapse;
+		width: 100%;
+	}
+
+	/* Add border style for table header cells */
+	.mdl-tabs__panel#tab6-panel th {
+		border: 1px solid #ddd;
+		padding: 8px;
+		text-align: left;
+	}
+
+	/* Add border style for table body cells */
+	.mdl-tabs__panel#tab6-panel td {
+		border: 1px solid #ddd;
+		padding: 8px;
+		text-align: left;
+	}
+
+	/* Remove border from first table row */
+	.mdl-tabs__panel#tab6-panel tr:first-child {
+		border-top: none;
+	}
+
+	/* Remove border from last table row */
+	.mdl-tabs__panel#tab6-panel tr:last-child {
+		border-bottom: none;
+	}
+	
+
+	.negative {
+		color: red;
+		font-weight: bold;
+	}
+
+	.green {
+		color: #4c967d;
+		font-weight: bold;
+	}
 </style>
 
 <body class="page-header-fixed sidemenu-closed-hidelogo page-content-white page-md page-full-width header-white white-sidebar-color logo-indigo">
@@ -544,10 +719,10 @@ $jsonData5 = json_encode( $data );
 
 											<!-- start data table -->
 											<div class="row">
-												<div class="col-md-12">
+												<div class="col-xl-8 col-md-8 col-12">
 													<div class="card card-topline-red">
 														<div class="card-head">
-															<header></header>
+															<header>หน่วย : ล้านบาท</header>
 															<div class="tools">
 																<a class="fa fa-repeat btn-color box-refresh" href="javascript:;" onclick="window.location.reload()"></a>
 																<a class="t-collapse btn-color fa fa-chevron-down" href="javascript:;"></a>
@@ -558,15 +733,14 @@ $jsonData5 = json_encode( $data );
 
 															<table class="table table-striped table-bordered table-hover table-checkable order-column" id="table1">
 																<thead>
-																	<tr>
-																		<th></th>
-																		<th> หน่วยงาน </th>
-																		<th> งบสะสม </th>
-																		<th> ค่าใช้จ่ายปี67 </th>
-																		<th> ค่าใช้จ่ายปี66 </th>
-																		<th> ค่าใช้จ่ายปี67เทียบงบสะสม</th>
-																		<th> ค่าใช้จ่ายปี67เทียบค่าใช้จ่ายปี66</th>
-
+                                                                    <tr>
+																		<th style="text-align: center;">ลำดับ</th>
+																		<th>หน่วยงาน</th>
+																		<th style="text-align: center;"> งบประมาณสะสม <br>ม.ค.-<?php echo convertToThaiMonth($latestMonth); ?> ปี <?php echo convertToThaiYear($latestYear); ?></th>
+																		<th style="text-align: center;"> เบิกจ่ายสุทธิ <br>ปี <?php echo convertToThaiYear($prevYear); ?> </th>
+																		<th style="text-align: center;"> เบิกจ่ายสุทธิ <br>ปี <?php echo convertToThaiYear($latestYear); ?> </th>
+																		<th style="text-align: center;"> % เบิกจ่ายสุทธิ ปี <?php echo convertToThaiYear($latestYear); ?><br>เปรียบเทียบ งบสะสมฯ ปี <?php echo convertToThaiYear($latestYear); ?></th>
+																		<th style="text-align: center;"> % เบิกจ่ายสุทธิ ปี <?php echo convertToThaiYear($latestYear); ?><br>เปรียบเทียบ เบิกจ่ายสุทธิ ปี <?php echo convertToThaiYear($prevYear); ?></th>
 																	</tr>
 																</thead>
 																<tbody>
@@ -579,42 +753,27 @@ while ($row = $result1_2->fetch_assoc())
 ?>
 
 																	<tr class="odd gradeX">
-																		<td><?php echo $num; ?></td>
+																		<td style="text-align: center;"><?php echo $num; ?></td>
 
 																		<td><?php echo $row['node_description']; ?></td>
-																		<td><?php echo number_format($row['total_budget_total_2024'],2); ?></td>
-																		<td><?php echo number_format($row['total_criteria_expenses_2024'],2); ?></td>
-
-																		<td><?php echo number_format($row['total_criteria_expenses_2023'],2); ?></td>
-																		<td><?php echo number_format($row['percentage_expenses_2024'],2); ?>%</td>
-																		<td><?php echo number_format($row['percentage_change'],2); ?>%</td>
+																		<td style="text-align: right;"><?php echo formatValue(number_format($row['total_budget_total_2024'],2)); ?></td>
+																		<td style="text-align: right;"><?php echo formatValue(number_format($row['total_criteria_expenses_2024'],2)); ?></td>
+																		<td style="text-align: right;"><?php echo formatValue(number_format($row['total_criteria_expenses_2023'],2)); ?></td>
+																		<td style="text-align: right;"><?php echo formatValue(number_format($row['percentage_expenses_2024'],2)); ?></td>
+																		<td style="text-align: right;"><?php echo formatValue(number_format($row['percentage_change'],2)); ?></td>
 
 																	</tr>
 																	<?php } ?>
 																</tbody>
-																<tfoot>
-																	<?php while ($row = $result_sum->fetch_assoc()) { ?>
-																	<tr>
-
-																		<td colspan="2">ผลรวมทั้งหมด</td>
-																		<td><mark><?php echo number_format($row['total_budget_total_2024'],2); ?></mark></td>
-																		<td><mark><?php echo number_format($row['total_criteria_expenses_2024'],2); ?></mark></td>
-																		<td><mark><?php echo number_format($row['total_criteria_expenses_2023'],2); ?></mark></td>
-																		<td><mark><?php echo number_format($row['percentage_expenses_2024'],2); ?>%</mark></td>
-																		<td><mark><?php echo number_format($row['percentage_change'],2); ?>%</mark></td>
-																		<!--                                                                        <td colspan="2"></td>-->
-																	</tr>
-																	<?php } ?>
-																</tfoot>
 															</table>
 														</div>
 													</div>
 												</div>
 
-											</div>
+											
 											<!-- end data table -->
-											<div class="row">
-												<div class="col-md-12">
+											
+												<div class="col-xl-4 col-md-4 col-12">
 													<div class="card card-box">
 														<div class="card-head">
 															<header></header>
@@ -632,9 +791,11 @@ while ($row = $result1_2->fetch_assoc())
 														</div>
 													</div>
 												</div>
-											</div>
-
+											
 										</div>
+									</div>
+									<!-- end tab4-panel -->
+									
 										<div class="mdl-tabs__panel p-t-20" id="tab5-panel">
 											<!-- start Apex Chart -->
 											<div id="chart2"></div>
@@ -644,7 +805,7 @@ while ($row = $result1_2->fetch_assoc())
 												<div class="col-xl-8 col-md-8 col-12">
 													<div class="card card-topline-red">
 														<div class="card-head">
-															<header></header>
+															<header>หน่วย : ล้านบาท</header>
 															<div class="tools">
 																<a class="fa fa-repeat btn-color box-refresh" href="javascript:;" onclick="window.location.reload()"></a>
 																<a class="t-collapse btn-color fa fa-chevron-down" href="javascript:;"></a>
@@ -655,15 +816,14 @@ while ($row = $result1_2->fetch_assoc())
 
 															<table class="table table-striped table-bordered table-hover table-checkable order-column" id="table2">
 																<thead>
-																	<tr>
-																		<th></th>
-																		<th> หน่วยงาน </th>
-																		<th> งบสะสม </th>
-																		<th> ค่าใช้จ่ายปี67 </th>
-																		<th> ค่าใช้จ่ายปี66 </th>
-																		<th> ค่าใช้จ่ายปี67เทียบงบสะสม</th>
-																		<th> ค่าใช้จ่ายปี67เทียบค่าใช้จ่ายปี66</th>
-
+                                                                    <tr>
+																		<th style="text-align: center;">ลำดับ</th>
+																		<th>หน่วยงาน</th>
+																		<th style="text-align: center;"> งบประมาณสะสม <br>ม.ค.-<?php echo convertToThaiMonth($latestMonth); ?> ปี <?php echo convertToThaiYear($latestYear); ?></th>
+																		<th style="text-align: center;"> เบิกจ่ายสุทธิ <br>ปี <?php echo convertToThaiYear($prevYear); ?> </th>
+																		<th style="text-align: center;"> เบิกจ่ายสุทธิ <br>ปี <?php echo convertToThaiYear($latestYear); ?> </th>
+																		<th style="text-align: center;"> % เบิกจ่ายสุทธิ ปี <?php echo convertToThaiYear($latestYear); ?><br>เปรียบเทียบ งบสะสมฯ ปี <?php echo convertToThaiYear($latestYear); ?></th>
+																		<th style="text-align: center;"> % เบิกจ่ายสุทธิ ปี <?php echo convertToThaiYear($latestYear); ?><br>เปรียบเทียบ เบิกจ่ายสุทธิ ปี <?php echo convertToThaiYear($prevYear); ?></th>
 																	</tr>
 																</thead>
 																<tbody>
@@ -675,15 +835,15 @@ while ($row = $result2_2->fetch_assoc())
 ?>
 
 																	<tr class="odd gradeX">
-																		<td><?php echo $num; ?></td>
+																		<td style="text-align: center;"><?php echo $num; ?></td>
 
 																		<td><?php echo $row['pea']; ?></td>
-																		<td><?php echo number_format($row['total_budget_total_2024'],2); ?></td>
-																		<td><?php echo number_format($row['total_criteria_expenses_2024'],2); ?></td>
+																		<td style="text-align: right;"><?php echo formatValue(number_format($row['total_budget_total_2024'],2)); ?></td>
+																		<td style="text-align: right;"><?php echo formatValue(number_format($row['total_criteria_expenses_2024'],2)); ?></td>
 
-																		<td><?php echo number_format($row['total_criteria_expenses_2023'],2); ?></td>
-																		<td><?php echo number_format($row['percentage_expenses_2024'],2); ?> %</td>
-																		<td><?php echo number_format($row['percentage_change'],2); ?> %</td>
+																		<td style="text-align: right;"><?php echo formatValue(number_format($row['total_criteria_expenses_2023'],2)); ?></td>
+																		<td style="text-align: right;"><?php echo formatValue(number_format($row['percentage_expenses_2024'],2)); ?> </td >
+																		<td style="text-align: right;"><?php echo formatValue(number_format($row['percentage_change'],2)); ?> </td>
 
 																	</tr>
 																	<?php } ?>
@@ -718,6 +878,7 @@ while ($row = $result2_2->fetch_assoc())
 											<div id="chart3"></div>
 											<!-- end Apex Chart -->
 											<!-- start data table -->
+<!--
 											<div class="row">
 												<div class="col-md-12">
 													<div class="card card-box">
@@ -745,29 +906,32 @@ while ($row = $result2_2->fetch_assoc())
 																	</tr>
 																</thead>
 																<tbody>
+-->
 																	<?php
-$num = 0;
-while ($row = $result3_2->fetch_assoc())
-{
-    $num++;
+//$num = 0;
+//while ($row = $result3_2->fetch_assoc())
+//{
+    //$num++;
 ?>
+<!--
 
 																	<tr class="odd gradeX">
-																		<td><?php echo $num; ?></td>
-																		<td><?php echo $row['pea']; ?></td>
-																		<td><?php echo number_format($row['total_budget_total_2024'],2); ?></td>
-																		<td><?php echo number_format($row['total_criteria_expenses_2024'],2); ?></td>
-																		<td><?php echo number_format($row['total_criteria_expenses_2023'],2); ?></td>
-																		<td><?php echo number_format($row['percentage_expenses_2024'],2); ?> %</td>
-																		<td><?php echo number_format($row['percentage_change'],2); ?> %</td>
+																		<td><?php //echo $num; ?></td>
+																		<td><?php //echo $row['pea']; ?></td>
+																		<td><?php //echo number_format($row['total_budget_total_2024'],2); ?></td>
+																		<td><?php //echo number_format($row['total_criteria_expenses_2024'],2); ?></td>
+																		<td><?php //echo number_format($row['total_criteria_expenses_2023'],2); ?></td>
+																		<td><?php //echo number_format($row['percentage_expenses_2024'],2); ?> %</td>
+																		<td><?php //echo number_format($row['percentage_change'],2); ?> %</td>
 																	</tr>
-																	<?php } ?>
+																	<?php //} ?>
 																</tbody>
 															</table>
 														</div>
 													</div>
 												</div>
 											</div>
+-->
 											<!-- end data table -->
 										</div>
 									</div>
@@ -856,19 +1020,19 @@ while ($row = $result3_2->fetch_assoc())
 
 		var options1 = {
 			series: [{
-				name: 'ค่าใช้จ่าย ปี66',
+				name: 'เบิกจ่ายสุทธิ ปี66',
 				type: 'column',
 				data: jsonData1.map(item => item.total_criteria_expenses_2023)
 			}, {
-				name: 'ค่าใช้จ่าย ปี67',
+				name: 'เบิกจ่ายสุทธิ ปี67',
 				type: 'column',
 				data: jsonData1.map(item => item.total_criteria_expenses_2024)
 			}, {
-				name: 'งบสะสมปี67',
+				name: 'งบสะสม ปี67',
 				type: 'column',
 				data: jsonData1.map(item => item.total_budget_total_2024)
 			}, {
-				name: 'งบประมาณปี67',
+				name: 'งบประมาณ ปี67',
 				type: 'line',
 				data: jsonData1.map(item => item.total_budget_12m_2024)
 			}],
@@ -908,7 +1072,7 @@ while ($row = $result3_2->fetch_assoc())
 				}
 			},
 			stroke: {
-				width: [1, 1, 1, 3],
+				width: [1, 1, 1, 2],
 				curve: 'smooth'
 			},
 			markers: {
@@ -946,8 +1110,8 @@ while ($row = $result3_2->fetch_assoc())
 				labels: {
 					formatter: function(val) {
 						return (val / 1000000).toLocaleString('en-US', {
-							minimumFractionDigits: 1,
-							maximumFractionDigits: 1
+							minimumFractionDigits: 0,
+							maximumFractionDigits: 0
 						}) + ' ล้านบาท';
 					},
 					style: {
@@ -997,19 +1161,19 @@ while ($row = $result3_2->fetch_assoc())
 
 		var options2 = {
 			series: [{
-				name: 'ค่าใช้จ่าย ปี66',
+				name: 'เบิกจ่ายสุทธิ ปี66',
 				type: 'column',
 				data: jsonData2.map(item => item.total_criteria_expenses_2023)
 			}, {
-				name: 'ค่าใช้จ่าย ปี67',
+				name: 'เบิกจ่ายสุทธิ ปี67',
 				type: 'column',
 				data: jsonData2.map(item => item.total_criteria_expenses_2024)
 			}, {
-				name: 'งบสะสมปี67',
+				name: 'งบสะสม ปี67',
 				type: 'column',
 				data: jsonData2.map(item => item.total_budget_total_2024)
 			}, {
-				name: 'งบประมาณปี67',
+				name: 'งบประมาณ ปี67',
 				type: 'line',
 				data: jsonData2.map(item => item.total_budget_12m_2024)
 			}],
@@ -1049,7 +1213,7 @@ while ($row = $result3_2->fetch_assoc())
 				}
 			},
 			stroke: {
-				width: [1, 1, 1, 3],
+				width: [1, 1, 1, 2],
 				curve: 'smooth'
 			},
 			markers: {
@@ -1087,8 +1251,8 @@ while ($row = $result3_2->fetch_assoc())
 				labels: {
 					formatter: function(val) {
 						return (val / 1000000).toLocaleString('en-US', {
-							minimumFractionDigits: 1,
-							maximumFractionDigits: 1
+							minimumFractionDigits: 0,
+							maximumFractionDigits: 0
 						}) + ' ล้านบาท';
 					},
 					style: {
@@ -1138,19 +1302,19 @@ while ($row = $result3_2->fetch_assoc())
 
 		var options3 = {
 			series: [{
-				name: 'ค่าใช้จ่าย ปี66',
+				name: 'เบิกจ่ายสุทธิ ปี66',
 				type: 'column',
 				data: jsonData3.map(item => item.total_criteria_expenses_2023)
 			}, {
-				name: 'ค่าใช้จ่าย ปี67',
+				name: 'เบิกจ่ายสุทธิ ปี67',
 				type: 'column',
 				data: jsonData3.map(item => item.total_criteria_expenses_2024)
 			}, {
-				name: 'งบสะสมปี67',
+				name: 'งบสะสม ปี67',
 				type: 'column',
 				data: jsonData3.map(item => item.total_budget_total_2024)
 			}, {
-				name: 'งบประมาณปี67',
+				name: 'งบประมาณ ปี67',
 				type: 'line',
 				data: jsonData3.map(item => item.total_budget_12m_2024)
 			}],
@@ -1190,7 +1354,7 @@ while ($row = $result3_2->fetch_assoc())
 				}
 			},
 			stroke: {
-				width: [1, 1, 1, 3],
+				width: [1, 1, 1, 2],
 				curve: 'smooth'
 			},
 			markers: {
@@ -1228,8 +1392,8 @@ while ($row = $result3_2->fetch_assoc())
 				labels: {
 					formatter: function(val) {
 						return (val / 1000000).toLocaleString('en-US', {
-							minimumFractionDigits: 1,
-							maximumFractionDigits: 1
+							minimumFractionDigits: 0,
+							maximumFractionDigits: 0
 						}) + ' ล้านบาท';
 					},
 					style: {
@@ -1279,19 +1443,19 @@ while ($row = $result3_2->fetch_assoc())
 
 		var options4 = {
 			series: [{
-				name: 'ค่าใช้จ่ายปี66',
+				name: 'เบิกจ่ายสุทธิ ปี66',
 				type: 'column',
 				data: jsonData4.map(item => item.total_criteria_expenses_2023)
 			}, {
-				name: 'ค่าใช้จ่ายปี67',
+				name: 'เบิกจ่ายสุทธิ ปี67',
 				type: 'column',
 				data: jsonData4.map(item => item.total_criteria_expenses_2024)
 			}, {
-				name: 'งบสะสมปี67',
+				name: 'งบสะสม ปี67',
 				type: 'column',
 				data: jsonData4.map(item => item.total_budget_total_2024)
 			}, {
-				name: 'งบประมาณปี67',
+				name: 'งบประมาณ ปี67',
 				type: 'column',
 				data: jsonData4.map(item => item.total_budget_12m_2024)
 			}],
@@ -1344,7 +1508,7 @@ while ($row = $result3_2->fetch_assoc())
 				}
 			},
 			stroke: {
-				width: [1, 1, 1, 3],
+				width: [1, 3, 1, 1],
 				curve: 'smooth'
 			},
 			markers: {
@@ -1423,19 +1587,19 @@ while ($row = $result3_2->fetch_assoc())
 
 		var options5 = {
 			series: [{
-				name: 'ค่าใช้จ่ายปี66',
+				name: 'เบิกจ่ายสุทธิ ปี66',
 				type: 'column',
 				data: jsonData5.map(item => item.total_criteria_expenses_2023)
 			}, {
-				name: 'ค่าใช้จ่ายปี67',
+				name: 'เบิกจ่ายสุทธิ ปี67',
 				type: 'column',
 				data: jsonData5.map(item => item.total_criteria_expenses_2024)
 			}, {
-				name: 'งบสะสมปี67',
+				name: 'งบสะสม ปี67',
 				type: 'column',
 				data: jsonData5.map(item => item.total_budget_total_2024)
 			}, {
-				name: 'งบประมาณปี67',
+				name: 'งบประมาณ ปี67',
 				type: 'column',
 				data: jsonData5.map(item => item.total_budget_12m_2024)
 			}],
@@ -1488,7 +1652,7 @@ while ($row = $result3_2->fetch_assoc())
 				}
 			},
 			stroke: {
-				width: [1, 1, 1, 3],
+				width: [1, 3, 1, 1],
 				curve: 'smooth'
 			},
 			markers: {

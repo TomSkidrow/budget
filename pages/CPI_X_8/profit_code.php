@@ -39,7 +39,7 @@ $result = $conn->query($sql);
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <meta name="description" content="PEA NE2 Budget" />
     <meta name="author" content="Tom Skidrow" />
-    <title>Budget</title>
+    <title>IDSS</title>
     <!-- google font -->
     <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet" type="text/css" />
     <!-- icons -->
@@ -96,7 +96,7 @@ $result = $conn->query($sql);
                                 <div class="page-title">Account Code</div>
                             </div>
                             <ol class="breadcrumb page-breadcrumb pull-right">
-                                <li><i class="fa fa-home"></i>&nbsp;<a class="parent-item" href="../data1">Home</a>&nbsp;<i class="fa fa-angle-right"></i>
+                                <li><i class="fa fa-home"></i>&nbsp;<a class="parent-item" href="../dashboard/">Home</a>&nbsp;<i class="fa fa-angle-right"></i>
                                 </li>
                                 <li class="active">Account Code</li>
                             </ol>
@@ -159,13 +159,13 @@ $result = $conn->query($sql);
                                                 <th></th>
                                                 <th> กลุ่มบัญชี </th>
                                                 <th> งบประมาณ 12 เดือน </th>
-                                                <th> งบสะสม </th>
+                                                <th> งบประมาณสะสม </th>
                                                 <!--                                                <th> จ่ายจริงสะสม </th>-->
                                                 <!--                                                <th> รวมค่ายกเว้น </th>-->
-                                                <th> จ่ายจริงสุทธิ </th>
+                                                <th> เบิกจ่ายสุทธิ </th>
                                                 <th> คงเหลือ </th>
                                                 <th> % </th>
-                                                <th> Progress </th>
+                                                <th>ปริมาตรการใช้งบ</th>
                                             </tr>
                                         </thead>
                                         <tbody>

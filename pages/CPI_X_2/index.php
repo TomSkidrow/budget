@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	<meta content="width=device-width, initial-scale=1" name="viewport" />
 	<meta name="description" content="PEA NE2 Budget" />
 	<meta name="author" content="Tom Skidrow" />
-	<title>CPI-X</title>
+	<title>IDSS</title>
 	<!-- google font -->
 	<!--    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet" type="text/css" />-->
 	<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600&display=swap" rel="stylesheet">
@@ -245,7 +245,7 @@ FROM
 WHERE
 	b.profit_code IN ( '$whereClause' ) 
 ORDER BY
-	percentage_expenses_2024 DESC
+	percentage_change ASC
 ";
             //echo "<pre>$sql_search</pre>"; 
             
@@ -434,19 +434,19 @@ ORDER BY
 
 		var options1 = {
 			series: [{
-				name: 'ค่าใช้จ่าย ปี66',
+				name: 'เบิกจ่ายสุทธิ ปี66',
 				type: 'column',
 				data: jsonData1.map(item => item.total_criteria_expenses_2023)
 			}, {
-				name: 'ค่าใช้จ่าย ปี67',
+				name: 'เบิกจ่ายสุทธิ ปี67',
 				type: 'column',
 				data: jsonData1.map(item => item.total_criteria_expenses_2024)
 			}, {
-				name: 'งบสะสมปี67',
+				name: 'งบสะสม ปี67',
 				type: 'column',
 				data: jsonData1.map(item => item.total_budget_total_2024)
 			}, {
-				name: 'งบประมาณปี67',
+				name: 'งบประมาณ ปี67',
 				type: 'line',
 				data: jsonData1.map(item => item.total_budget_12m_2024)
 			}],
@@ -524,12 +524,12 @@ ORDER BY
 				labels: {
 					formatter: function(val) {
 						return (val / 1000000).toLocaleString('en-US', {
-							minimumFractionDigits: 1,
-							maximumFractionDigits: 1
+							minimumFractionDigits: 0,
+							maximumFractionDigits: 0
 						}) + ' ล้านบาท';
 					},
 					style: {
-						fontSize: '13px' // Change font size to 16px
+						fontSize: '14px'
 					}
 				}
 			},
@@ -538,6 +538,8 @@ ORDER BY
 				labels: {
 					style: {
 						fontFamily: 'Prompt, sans-serif',
+						fontSize: '14px', // Increase the size of the x-axis labels
+                fontWeight: 'bold'
 					}
 				},
 				tickPlacement: 'between', // Ensure ticks are between the categories

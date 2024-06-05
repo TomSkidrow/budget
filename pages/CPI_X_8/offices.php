@@ -48,7 +48,7 @@ $result_header = $conn->query($sql_header);
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <meta name="description" content="PEA NE2 Budget" />
     <meta name="author" content="Tom Skidrow" />
-    <title>Budget</title>
+    <title>IDSS</title>
     <!-- google font -->
     <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet" type="text/css" />
     <!-- icons -->
@@ -140,7 +140,7 @@ $result_header = $conn->query($sql_header);
                                 <div class="page-title"></div>
                             </div>
                             <ol class="breadcrumb page-breadcrumb pull-right">
-                                <li><i class="fa fa-home"></i>&nbsp;<a class="parent-item" href="../data1">Home</a>&nbsp;<i class="fa fa-angle-right"></i>
+                                <li><i class="fa fa-home"></i>&nbsp;<a class="parent-item" href="../dashboard/">Home</a>&nbsp;<i class="fa fa-angle-right"></i>
                                 </li>
                                  <li class="active"><a href="#" id="goBack">กลับไปหน้าที่แล้ว</a></li>
                             </ol>
@@ -171,15 +171,15 @@ $result_header = $conn->query($sql_header);
                                     <table class="table table-striped table-bordered table-hover table-checkable order-column" id="example4">
                                         <thead>
                                             <tr>
-                                                <th></th>
+                                                <th style="text-align: center;">ลำดับ</th>
                                                 <th>หน่วยงาน</th>
-                                                <th>งบประมาณทั้งหมด</th>
-                                                <th>งบประมาณสะสม</th>
-                                                <th>ค่าใช้จ่าย</th>
-                                                <th>คงเหลือ</th>
-                                                <th>ร้อยละการใช้จ่าย</th>
-                                                <th>ร้อยละคงเหลือ</th>
-                                                <th>ปริมาตรการใช้งบ</th>
+                                                <th style="text-align: center;">งบประมาณทั้งหมด<br>(1)</th>
+                                                <th style="text-align: center;">งบประมาณสะสม<br>(2)</th>
+                                                <th style="text-align: center;">เบิกจ่ายสุทธิ<br>(3)</th>
+                                                <th style="text-align: center;">คงเหลือทั้งหมด<br>(1-3)</th>
+                                                <th style="text-align: center;"> % การใช้จาก<br>งบประมาณสะสม (2)</th>
+                                                <th style="text-align: center;"> % การใช้จาก<br>งบประมาณทั้งหมด (1)</th>
+                                                <th style="text-align: center;">ปริมาตรการใช้<br>งบประมาณทั้งหมด (1)</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -206,14 +206,14 @@ $result_header = $conn->query($sql_header);
                                             <tr class="odd gradeX">
                                                 <td><?php echo $num; ?></td>
                                                 <td><?php echo $row['pea_sname']; ?></td>
-                                                <td><?php echo number_format($row['budget_12m'],2); ?></td>
-                                                <td><?php echo number_format($row['budget_total'],2); ?></td>
+                                                <td style="text-align: right;"><?php echo number_format($row['budget_12m'],2); ?></td>
+                                                <td style="text-align: right;"><?php echo number_format($row['budget_total'],2); ?></td>
                                                 <!--                                                <td><?php //echo number_format($row['sum_pay_savings'],2); ?></td>-->
                                                 <!--                                                <td><?php //echo number_format($row['except'],2); ?></td>-->
-                                                <td><?php echo $row['criteria_expenses']; ?></td>
-                                                <td><?php echo $row['balance']; ?></td>
-                                                <td><?php echo number_format($row['percent_savings'],2); ?></td>
-                                                <td><?php echo number_format($row['percent_budget'],2); ?></td>
+                                                <td style="text-align: right;"><?php echo $row['criteria_expenses']; ?></td>
+                                                <td style="text-align: right;"><?php echo $row['balance']; ?></td>
+                                                <td style="text-align: right;"><?php echo number_format($row['percent_savings'],2); ?></td>
+                                                <td style="text-align: right;"><?php echo number_format($row['percent_budget'],2); ?></td>
                                                 <td>
 <?php
 $percentage = $row['percent_budget']; // Using abs() to get the absolute value
