@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiple Sparkline Charts Example</title>
+    <!-- Include jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Include Sparkline library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-sparklines/2.1.2/jquery.sparkline.min.js"></script>
+</head>
+<body>
+    <!-- Line chart -->
+    <div id="sparkline-line-chart"></div>
+    <!-- Bar chart -->
+    <div id="sparkline-bar-chart"></div>
+    <!-- Pie chart -->
+    <div id="sparkline-pie-chart"></div>
+
+    <script>
+        $(document).ready(function(){
+            // Sample data for line chart
+            var lineData = [5, 10, 15, 20, 25, 30, 35];
+            // Generate the line chart
+            $('#sparkline-line-chart').sparkline(lineData, { type: 'line', width: '200px', height: '50px' });
+
+            // Sample data for bar chart
+            var barData = [5, 15, 10, 20, 25, 30, 35];
+            // Generate the bar chart
+            $('#sparkline-bar-chart').sparkline(barData, { type: 'bar', width: '200px', height: '50px' });
+
+            // Sample data for pie chart
+            var pieData = [30, 20, 50];
+            // Generate the pie chart
+            $('#sparkline-pie-chart').sparkline(pieData, { type: 'pie', width: '200px', height: '200px', sliceColors: ['#3366cc', '#dc3912', '#ff9900'] });
+        });
+    </script>
+</body>
+</html>

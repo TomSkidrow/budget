@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ApexCharts Mixed Bar and Line Chart with Annotations</title>
+    <!-- Include ApexCharts CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.27.1/dist/apexcharts.css">
+    <!-- Include ApexCharts JS -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.27.1/dist/apexcharts.min.js"></script>
+</head>
+<body>
+    <div id="chart"></div>
+
+    <script>
+        // Define the chart options
+        var options = {
+            chart: {
+                type: 'bar', // Set to 'line' to allow mixed chart
+                height: 350
+            },
+            series: [
+                {
+                    name: 'Bar Values',
+                    type: 'bar',
+                    data: [10, 15, 25, 30, 20]
+                }
+            ],
+            xaxis: {
+                categories: ['Category A', 'Category B', 'Category C', 'Category D', 'Category E']
+            },
+            title: {
+                text: 'Comparison of Values with Connecting Line and Differences',
+                align: 'center'
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    horizontal: false,
+                }
+            },
+            dataLabels: {
+                enabled: true,
+                enabledOnSeries: [0] // Enable data labels only for the bar series
+            },
+            stroke: {
+                width: [0, 4] // No stroke for bar, 4px stroke for line
+            },
+            annotations: {
+                points: [
+                    {
+                        x: 'Category A',
+                        y: 10,
+                        label: {
+                            text: 'A - B = -5',
+                            offsetY: -15
+                        }
+                    },
+                    {
+                        x: 'Category B',
+                        y: 15,
+                        label: {
+                            text: 'B - C = -10',
+                            offsetY: -15
+                        }
+                    }
+                ]
+            }
+        };
+
+        // Render the chart
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+    </script>
+</body>
+</html>
